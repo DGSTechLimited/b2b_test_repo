@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Shield from "lucide-react/dist/esm/icons/shield";
+import { Shield } from "lucide-react";
 import { UserMenu } from "@/components/user-menu";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

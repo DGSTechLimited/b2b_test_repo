@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import ShoppingCart from "lucide-react/dist/esm/icons/shopping-cart";
-import Wrench from "lucide-react/dist/esm/icons/wrench";
+import { ShoppingCart } from "lucide-react";
 import { UserMenu } from "@/components/user-menu";
 
 export function PortalShell({ children }: { children: React.ReactNode }) {
