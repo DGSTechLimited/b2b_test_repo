@@ -1,0 +1,2 @@
+Order Number,Account Number,Part Number,Ordered Quantity,Fulfilled Quantity,Backordered Quantity,Status,Status Date,Notes,error_reason
+HB-ORDER-00001,ACC-1001,PART-001,5,3,2,PARTIALLY_FULFILLED,2025-01-10,Partial shipment received,Order HB-ORDER-00001 not found.

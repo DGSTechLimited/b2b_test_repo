@@ -1,0 +1,24 @@
+name: GRES B2B Governance
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  governance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run GRES B2B Governance (Shadow)
+        uses: ajranjith/b2b-governance-action@v1
+        with:
+          mode: shadow
+          config: .gres/config.yml
+          fail_on_red: false
+          token: ${{ secrets.GITHUB_TOKEN }}

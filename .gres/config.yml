@@ -1,0 +1,59 @@
+version: 1
+
+modes:
+  default: shadow
+
+rules:
+  - id: dealer-status-enforcement
+    category: access-control
+    description: Dealers must be ACTIVE for portal access and transactions.
+    severity: critical
+    applies_to:
+      - app/portal/**
+      - app/api/portal/**
+      - app/actions/portal/**
+
+  - id: admin-role-required
+    category: access-control
+    description: Admin routes/APIs must require ADMIN/SUPERADMIN.
+    severity: high
+    applies_to:
+      - app/admin/**
+      - app/api/admin/**
+      - app/actions/admin/**
+
+  - id: prisma-migration-required
+    category: data-integrity
+    description: Prisma schema changes must include migrations.
+    severity: high
+    applies_to:
+      - prisma/schema.prisma
+
+  - id: orders-export-fields
+    category: data-export
+    description: Orders export must include required fields.
+    severity: medium
+    applies_to:
+      - app/api/**/orders/export/**
+    required_fields:
+      - portalOrderNumber
+      - status
+      - date
+      - total
+    optional_fields:
+      - erpOrderNumber
+
+  - id: backorders-export-fields
+    category: data-export
+    description: Backorders export must include required fields.
+    severity: medium
+    applies_to:
+      - app/api/**/backorders/export/**
+    required_fields:
+      - portalOrderNumber
+      - erpOrderNumber
+      - productCode
+      - description
+      - quantityOrdered
+      - quantityOutstanding
+      - inWarehouse

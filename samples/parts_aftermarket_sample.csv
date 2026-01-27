@@ -1,0 +1,3 @@
+Manufacturer,StkNo,LandRover No,Jaguar No,Category,Supplier,OEM,Description,Free Stock,Trade Price,Band A,Band B,Band C,Band D,Band E,Band F,Minimum Price,TARIFFCODE,Country of Orgin,Barcode
+ACME,STK-1001,LR-1001,JG-1001,AFTERMARKET,Atlas Supply,OEM-1001,Brake pad set,25,42.50,48.00,50.00,52.00,54.00,55.00,56.00,40.00,8708,UK,1234567890123
+ACME,STK-1002,LR-1002,JG-1002,AFTERMARKET,Atlas Supply,OEM-1002,Oil filter,60,12.00,14.00,15.00,16.00,17.00,18.00,19.00,10.00,8421,UK,1234567890456
