@@ -23,19 +23,37 @@ jobs:
           URL="https://github.com/ajranjith/B2B-Updated/releases/download/${VERSION}/${ZIP}"
           curl -fsSL "$URL" -o "$ZIP"
           python - <<'PY'
+          import shutil
           import zipfile
-          from pathlib import Path
+          from pathlib import Path, PurePosixPath
 
           zip_path = Path("gres-digital-b2b-v4.0.0-beta.1.zip")
+          out_dir = Path("gres-b2b")
+          out_dir.mkdir(exist_ok=True)
+
           with zipfile.ZipFile(zip_path) as zf:
-            zf.extractall()
+            for info in zf.infolist():
+              name = info.filename.replace("\\", "/")
+              if name.endswith("/"):
+                continue
+              parts = PurePosixPath(name).parts
+              if parts and parts[0].startswith("gres-digital-b2b-"):
+                rel = Path(*parts[1:]) if len(parts) > 1 else Path()
+              else:
+                rel = Path(*parts)
+              if not rel:
+                continue
+              target = out_dir / rel
+              target.parent.mkdir(parents=True, exist_ok=True)
+              with zf.open(info) as src, open(target, "wb") as dst:
+                shutil.copyfileobj(src, dst)
           PY
 
       - name: Run GRES B2B Governance (Shadow)
         run: |
           set -euo pipefail
-          chmod +x gres-digital-b2b-v4.0.0-beta.1/bin/gres-b2b-linux-amd64
-          ./gres-digital-b2b-v4.0.0-beta.1/bin/gres-b2b-linux-amd64 --shadow --config .gres/config.yml
+          chmod +x gres-b2b/bin/gres-b2b-linux-amd64
+          ./gres-b2b/bin/gres-b2b-linux-amd64 --shadow --config .gres/config.yml
 
       - name: Upload governance reports
         if: always()
