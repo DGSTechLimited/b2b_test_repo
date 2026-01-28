@@ -109,12 +109,22 @@ jobs:
             "method": "tools/call",
             "params": {"name": "b2b_scan_brownfield", "arguments": {"scan_path": "."}}
           })
-          resp = recv_json(timeout=60)
+          # Wait for the response with id=2 (ignore notifications)
+          resp = None
+          start = time.time()
+          while time.time() - start < 120:
+            msg = recv_json(timeout=5)
+            if not msg:
+              continue
+            if msg.get("id") == 2:
+              resp = msg
+              break
           if not resp:
             stderr = proc.stderr.read()
             raise SystemExit(f"gres-b2b did not respond to tools/call. stderr:\\n{stderr}")
           if "error" in resp:
             raise SystemExit(f"gres-b2b error: {resp['error']}")
+          print(json.dumps(resp))
           
           proc.terminate()
           PY
