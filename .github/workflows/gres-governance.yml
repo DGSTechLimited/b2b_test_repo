@@ -53,7 +53,71 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x gres-b2b/bin/gres-b2b-linux-amd64
-          ./gres-b2b/bin/gres-b2b-linux-amd64 --shadow --config .gres/config.yml
+          python - <<'PY'
+          import json
+          import subprocess
+          import time
+          import sys
+          
+          cmd = ["./gres-b2b/bin/gres-b2b-linux-amd64"]
+          proc = subprocess.Popen(
+              cmd,
+              stdin=subprocess.PIPE,
+              stdout=subprocess.PIPE,
+              stderr=subprocess.PIPE,
+              text=True,
+          )
+          
+          def send(msg):
+            proc.stdin.write(json.dumps(msg) + "\n")
+            proc.stdin.flush()
+          
+          def recv_json(timeout=10):
+            start = time.time()
+            while time.time() - start < timeout:
+              line = proc.stdout.readline()
+              if not line:
+                time.sleep(0.05)
+                continue
+              line = line.strip()
+              if not line:
+                continue
+              try:
+                return json.loads(line)
+              except json.JSONDecodeError:
+                continue
+            return None
+          
+          # Initialize MCP session (best-effort)
+          send({
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+              "protocolVersion": "2024-11-05",
+              "clientInfo": {"name": "ci", "version": "1.0"},
+              "capabilities": {}
+            }
+          })
+          recv_json(timeout=5)
+          send({"jsonrpc": "2.0", "method": "initialized", "params": {}})
+          
+          # Run brownfield scan
+          send({
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "tools/call",
+            "params": {"name": "b2b_scan_brownfield", "arguments": {"scan_path": "."}}
+          })
+          resp = recv_json(timeout=60)
+          if not resp:
+            stderr = proc.stderr.read()
+            raise SystemExit(f"gres-b2b did not respond to tools/call. stderr:\\n{stderr}")
+          if "error" in resp:
+            raise SystemExit(f"gres-b2b error: {resp['error']}")
+          
+          proc.terminate()
+          PY
 
       - name: Upload governance reports
         if: always()
