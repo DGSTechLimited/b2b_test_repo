@@ -15,12 +15,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Download gres-b2b CLI
+        run: |
+          set -euo pipefail
+          VERSION="v4.0.0-beta.1"
+          ZIP="gres-digital-b2b-${VERSION}.zip"
+          URL="https://github.com/ajranjith/B2B-Updated/releases/download/${VERSION}/${ZIP}"
+          curl -fsSL "$URL" -o "$ZIP"
+          unzip -q "$ZIP"
+
       - name: Run GRES B2B Governance (Shadow)
-        uses: ajranjith/b2b-governance-action@v1.2.0
+        run: |
+          set -euo pipefail
+          chmod +x gres-digital-b2b-v4.0.0-beta.1/bin/gres-b2b-linux-amd64
+          ./gres-digital-b2b-v4.0.0-beta.1/bin/gres-b2b-linux-amd64 --shadow --config .gres/config.yml
+
+      - name: Upload governance reports
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          mode: shadow
-          config: .gres/config.yml
-          fail_on_red: false
-          repo: ajranjith/b2b-governance-action
-          version: v1.2.0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: gres-b2b-reports
+          path: |
+            .b2b/report.html
+            .b2b/report.json
