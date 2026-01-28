@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
 import { clearCartIfExpired } from "@/lib/cart-expiry";
+import { getCartItemCount, getCartSummaryForUser } from "@/lib/db/cart-count";
 
 export async function GET() {
   let session;
@@ -12,10 +12,7 @@ export async function GET() {
   }
 
   const userId = (session.user as any).id as string;
-  const cart = await prisma.cart.findUnique({
-    where: { userId },
-    select: { id: true, updatedAt: true }
-  });
+  const cart = await getCartSummaryForUser(userId);
 
   if (!cart) {
     return NextResponse.json({ count: 0 });
@@ -26,10 +23,7 @@ export async function GET() {
     return NextResponse.json({ count: 0 });
   }
 
-  const result = await prisma.cartItem.aggregate({
-    where: { cartId: cart.id },
-    _sum: { qty: true }
-  });
+  const count = await getCartItemCount(cart.id);
 
-  return NextResponse.json({ count: result._sum.qty ?? 0 });
+  return NextResponse.json({ count });
 }

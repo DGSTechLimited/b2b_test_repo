@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { stringify } from "csv-stringify/sync";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
+import { getAdminHoldOrders } from "@/lib/db/orders";
 
 export async function GET() {
   try {
@@ -10,21 +10,7 @@ export async function GET() {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const orders = await prisma.order.findMany({
-    where: { status: { in: ["ON_HOLD", "SUSPENDED"] } },
-    include: {
-      items: true,
-      lineStatuses: true,
-      user: {
-        select: {
-          name: true,
-          email: true,
-          dealerProfile: { select: { dealerName: true, accountNo: true } }
-        }
-      }
-    },
-    orderBy: { createdAt: "asc" }
-  });
+  const orders = await getAdminHoldOrders();
 
   const rows = orders.flatMap((order) => {
     const dealerName =

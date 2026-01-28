@@ -1,24 +1,19 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
+import { getLineStatusesForOrder, getOrderDetailForUser } from "@/lib/db/orders";
 import { OrderDetailClient } from "./OrderDetailClient";
 
 export default async function OrderDetailPage({ params }: { params: { orderId: string } }) {
   const session = await requireRole("DEALER");
   const userId = (session.user as any).id as string;
 
-  const order = await prisma.order.findFirst({
-    where: { id: params.orderId, userId },
-    include: { items: true }
-  });
+  const order = await getOrderDetailForUser(userId, params.orderId);
 
   if (!order) {
     notFound();
   }
 
-  const lineStatuses = await prisma.orderLineStatus.findMany({
-    where: { orderId: order.id }
-  });
+  const lineStatuses = await getLineStatusesForOrder(order.id);
   const statusMap = new Map(
     lineStatuses.map((status) => [status.partNumber, status.status])
   );

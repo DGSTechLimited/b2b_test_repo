@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
+import { getCatalogPartById, updateCatalogPart } from "@/lib/db/admin-uploads";
 
 const updateSchema = z.object({
   description: z.string().nullable().optional(),
@@ -29,21 +29,17 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ message: "Invalid payload" }, { status: 400 });
   }
 
-  const part = await prisma.catalogPart.findUnique({ where: { id: params.id } });
+  const part = await getCatalogPartById(params.id);
   if (!part) {
     return NextResponse.json({ message: "Part not found" }, { status: 404 });
   }
 
-  // LLID: L-API-ADMIN-001-update-catalog-part
-  await prisma.catalogPart.update({
-    where: { id: part.id },
-    data: {
-      description: cleanText(parsed.data.description),
-      supplier: cleanText(parsed.data.supplier),
-      brand: cleanText(parsed.data.brand),
-      freeStock: parsed.data.freeStock,
-      isActive: parsed.data.isActive
-    }
+  await updateCatalogPart(part.id, {
+    description: cleanText(parsed.data.description),
+    supplier: cleanText(parsed.data.supplier),
+    brand: cleanText(parsed.data.brand),
+    freeStock: parsed.data.freeStock,
+    isActive: parsed.data.isActive
   });
 
   return NextResponse.json({ ok: true });

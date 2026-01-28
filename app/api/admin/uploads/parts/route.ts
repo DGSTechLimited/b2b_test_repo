@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
+import { listCatalogPartsByType } from "@/lib/db/admin-uploads";
 
 export async function GET(request: Request) {
   try {
@@ -18,16 +18,7 @@ export async function GET(request: Request) {
   const page = Math.max(1, Number(searchParams.get("page") ?? "1"));
   const pageSize = Math.min(50, Math.max(1, Number(searchParams.get("pageSize") ?? "20")));
 
-  const where = { partType: type };
-  const [total, parts] = await Promise.all([
-    prisma.catalogPart.count({ where }),
-    prisma.catalogPart.findMany({
-      where,
-      orderBy: { updatedAt: "desc" },
-      skip: (page - 1) * pageSize,
-      take: pageSize
-    })
-  ]);
+  const [total, parts] = await listCatalogPartsByType(type, page, pageSize);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 

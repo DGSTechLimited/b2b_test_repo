@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/require-auth";
+import { getUserProfileById } from "@/lib/db/me";
 
 export async function GET() {
   let session;
@@ -11,10 +11,7 @@ export async function GET() {
   }
 
   const userId = (session.user as any).id as string;
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: { dealerProfile: true }
-  });
+  const user = await getUserProfileById(userId);
 
   if (!user) {
     return NextResponse.json({ message: "User not found" }, { status: 404 });

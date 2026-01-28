@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { stringify } from "csv-stringify/sync";
 import * as XLSX from "xlsx";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
+import { getOrdersForUser } from "@/lib/db/orders";
 
 export async function GET(request: Request) {
   let session;
@@ -19,10 +19,7 @@ export async function GET(request: Request) {
   }
 
   const userId = (session.user as any).id as string;
-  const orders = await prisma.order.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" }
-  });
+  const orders = await getOrdersForUser(userId);
 
   const rows = orders.map((order) => ({
     "Portal Order Number": order.orderNumber,

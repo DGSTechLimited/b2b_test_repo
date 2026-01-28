@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getDealerStatusByUserId } from "@/lib/db/require-auth";
 
 export async function requireSession() {
   const session = await getServerSession(authOptions);
@@ -20,10 +20,7 @@ export async function requireRole(role: "ADMIN" | "DEALER") {
     if (!userId) {
       throw new Error("Unauthorized");
     }
-    const dealerProfile = await prisma.dealerProfile.findUnique({
-      where: { userId },
-      select: { status: true }
-    });
+    const dealerProfile = await getDealerStatusByUserId(userId);
     if (!dealerProfile || dealerProfile.status !== "ACTIVE") {
       throw new Error("DealerInactive");
     }

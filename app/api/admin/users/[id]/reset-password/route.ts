@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import bcrypt from "bcrypt";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
+import { getUserWithProfile, resetUserPassword } from "@/lib/db/admin-users";
 
 function generateTempPassword() {
   return crypto.randomBytes(6).toString("base64url");
@@ -24,7 +24,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     );
   }
 
-  const user = await prisma.user.findUnique({ where: { id: params.id } });
+  const user = await getUserWithProfile(params.id);
   if (!user) {
     return NextResponse.json({ message: "User not found." }, { status: 404 });
   }
@@ -32,15 +32,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const tempPassword = requestedPassword || generateTempPassword();
   const passwordHash = await bcrypt.hash(tempPassword, 12);
 
-  // LLID: L-API-ADMIN-003-reset-user-password
-  await prisma.user.update({
-    where: { id: params.id },
-    data: {
-      passwordHash,
-      mustChangePassword: true,
-      passwordUpdatedAt: null
-    }
-  });
+  await resetUserPassword(params.id, passwordHash);
 
   return NextResponse.json({ ok: true, tempPassword });
 }

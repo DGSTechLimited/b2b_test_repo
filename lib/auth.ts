@@ -1,7 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { prisma } from "@/lib/prisma";
+import { getUserForAuth, touchUserLastLogin } from "@/lib/db/auth";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -22,10 +22,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email },
-          include: { dealerProfile: true }
-        });
+        const user = await getUserForAuth(email);
 
         if (!user || user.status !== "ACTIVE") {
           return null;
@@ -36,11 +33,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // LLID: L-LIB-001-update-last-login
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { lastLoginAt: new Date() }
-        });
+        await touchUserLastLogin(user.id);
 
         return {
           id: user.id,

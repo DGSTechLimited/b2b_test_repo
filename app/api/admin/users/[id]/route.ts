@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
+import {
+  getUserWithProfile,
+  updateAdminUser,
+  updateDealerUserAndProfile
+} from "@/lib/db/admin-users";
 
 const updateSchema = z.object({
   name: z.string().min(2),
@@ -24,10 +28,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ message: "Invalid payload" }, { status: 400 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: params.id },
-    include: { dealerProfile: true }
-  });
+  const user = await getUserWithProfile(params.id);
 
   if (!user) {
     return NextResponse.json({ message: "User not found" }, { status: 404 });
@@ -38,33 +39,21 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
   if (user.role === "DEALER" && user.dealerProfile) {
     const userStatus = status === "INACTIVE" ? "INACTIVE" : "ACTIVE";
-    await prisma.$transaction([
-      // LLID: L-API-ADMIN-004-update-dealer-user
-      prisma.user.update({
-        where: { id: user.id },
-        data: { name: cleanedName, status: userStatus }
-      }),
-      // LLID: L-API-ADMIN-005-update-dealer-profile
-      prisma.dealerProfile.update({
-        where: { id: user.dealerProfile.id },
-        data: {
-          dealerName: cleanedName,
-          status,
-          genuineTier: genuineTier ?? user.dealerProfile.genuineTier,
-          aftermarketTier: aftermarketTier ?? user.dealerProfile.aftermarketTier,
-          brandedTier: brandedTier ?? user.dealerProfile.brandedTier
-        }
-      })
-    ]);
+    await updateDealerUserAndProfile(user.id, user.dealerProfile.id, {
+      user: { name: cleanedName, status: userStatus },
+      profile: {
+        dealerName: cleanedName,
+        status,
+        genuineTier: genuineTier ?? user.dealerProfile.genuineTier,
+        aftermarketTier: aftermarketTier ?? user.dealerProfile.aftermarketTier,
+        brandedTier: brandedTier ?? user.dealerProfile.brandedTier
+      }
+    });
   } else {
     if (status === "SUSPENDED") {
       return NextResponse.json({ message: "Invalid status for admin user." }, { status: 400 });
     }
-    // LLID: L-API-ADMIN-006-update-admin-user
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { name: cleanedName, status }
-    });
+    await updateAdminUser(user.id, { name: cleanedName, status });
   }
 
   return NextResponse.json({ ok: true });

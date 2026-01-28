@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
+import { listSupersessions } from "@/lib/db/admin-uploads";
 
 export async function GET(request: Request) {
   try {
@@ -13,14 +13,7 @@ export async function GET(request: Request) {
   const page = Math.max(1, Number(searchParams.get("page") ?? "1"));
   const pageSize = Math.min(50, Math.max(1, Number(searchParams.get("pageSize") ?? "20")));
 
-  const [total, supersessions] = await Promise.all([
-    prisma.supersession.count(),
-    prisma.supersession.findMany({
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * pageSize,
-      take: pageSize
-    })
-  ]);
+  const [total, supersessions] = await listSupersessions(page, pageSize);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const now = new Date();

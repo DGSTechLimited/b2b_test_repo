@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
+import { getSupersessionById, updateSupersession } from "@/lib/db/admin-uploads";
 
 const updateSchema = z.object({
   newPartNo: z.string().min(1),
@@ -21,7 +21,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ message: "Invalid payload" }, { status: 400 });
   }
 
-  const supersession = await prisma.supersession.findUnique({ where: { id: params.id } });
+  const supersession = await getSupersessionById(params.id);
   if (!supersession) {
     return NextResponse.json({ message: "Supersession not found" }, { status: 404 });
   }
@@ -34,13 +34,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ message: "Invalid effective date" }, { status: 400 });
   }
 
-  // LLID: L-API-ADMIN-002-update-supersession
-  await prisma.supersession.update({
-    where: { id: supersession.id },
-    data: {
-      newPartNo: cleanedNewPart,
-      effectiveDate: effectiveDateValue
-    }
+  await updateSupersession(supersession.id, {
+    newPartNo: cleanedNewPart,
+    effectiveDate: effectiveDateValue
   });
 
   return NextResponse.json({ ok: true });

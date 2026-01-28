@@ -3,8 +3,8 @@ import { z } from "zod";
 import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
+import { createSupportAuditLog, getDealerAccountNoForSupport } from "@/lib/db/contact-support";
 
 const supportSchema = z.object({
   name: z.string().min(2),
@@ -34,12 +34,9 @@ export async function POST(request: Request) {
   }
 
   const userId = (session.user as any).id as string;
-  const dealerProfile = await prisma.dealerProfile.findUnique({
-    where: { userId },
-    select: { accountNo: true }
-  });
+  const accountNo = await getDealerAccountNoForSupport(userId);
 
-  if (!dealerProfile) {
+  if (!accountNo) {
     return NextResponse.json({ message: "Dealer not found." }, { status: 404 });
   }
 
@@ -47,7 +44,7 @@ export async function POST(request: Request) {
   let payload: Record<string, string> = {
     name: "",
     email: "",
-    accountNumber: dealerProfile.accountNo,
+    accountNumber: accountNo,
     subject: "",
     message: ""
   };
@@ -58,7 +55,7 @@ export async function POST(request: Request) {
     payload = {
       name: String(formData.get("name") ?? ""),
       email: String(formData.get("email") ?? ""),
-      accountNumber: dealerProfile.accountNo,
+      accountNumber: accountNo,
       subject: String(formData.get("subject") ?? ""),
       message: String(formData.get("message") ?? "")
     };
@@ -72,7 +69,7 @@ export async function POST(request: Request) {
       payload = {
         name: String(body.name ?? ""),
         email: String(body.email ?? ""),
-        accountNumber: dealerProfile.accountNo,
+        accountNumber: accountNo,
         subject: String(body.subject ?? ""),
         message: String(body.message ?? "")
       };
@@ -128,17 +125,10 @@ export async function POST(request: Request) {
     };
   }
 
-  // LLID: L-API-SUPPORT-001-audit-support-contact
-  await prisma.auditLog.create({
-    data: {
-      userId: (session.user as any).id as string,
-      action: "SUPPORT_CONTACT",
-      metadata: {
-        ...parsed.data,
-        attachment: attachmentMeta,
-        submittedBy: session.user?.email ?? null
-      }
-    }
+  await createSupportAuditLog(userId, {
+    ...parsed.data,
+    attachment: attachmentMeta,
+    submittedBy: session.user?.email ?? null
   });
 
   return NextResponse.json({ ok: true }, { status: 201 });

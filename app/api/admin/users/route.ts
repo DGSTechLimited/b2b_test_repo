@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcrypt";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
+import {
+  createUserWithProfile,
+  findDealerProfileByAccountNo,
+  findUserByEmail,
+  listUsers
+} from "@/lib/db/admin-users";
 
 const createSchema = z.discriminatedUnion("role", [
   z.object({
@@ -64,16 +69,7 @@ export async function GET(request: Request) {
     ];
   }
 
-  const [total, users] = await Promise.all([
-    prisma.user.count({ where }),
-    prisma.user.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      include: { dealerProfile: true, createdBy: true }
-    })
-  ]);
+  const [total, users] = await listUsers(where, page, pageSize);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -118,9 +114,7 @@ export async function POST(request: Request) {
 
   const data = parsed.data;
   const normalizedEmail = data.email.toLowerCase().trim();
-  const existing = await prisma.user.findUnique({
-    where: { email: normalizedEmail }
-  });
+  const existing = await findUserByEmail(normalizedEmail);
   if (existing) {
     return NextResponse.json(
       { message: "Email already in use.", fieldErrors: { email: "Email already in use." } },
@@ -129,9 +123,7 @@ export async function POST(request: Request) {
   }
 
   if (data.role === "DEALER") {
-    const accountExists = await prisma.dealerProfile.findUnique({
-      where: { accountNo: data.accountNo.trim() }
-    });
+    const accountExists = await findDealerProfileByAccountNo(data.accountNo.trim());
     if (accountExists) {
       return NextResponse.json(
         { message: "Account No already in use.", fieldErrors: { accountNo: "Account No already in use." } },
@@ -149,31 +141,28 @@ export async function POST(request: Request) {
         : "ACTIVE"
       : data.status;
 
-  // LLID: L-API-ADMIN-007-create-user
-  await prisma.user.create({
-    data: {
-      email: normalizedEmail,
-      passwordHash,
-      role: data.role,
-      status: userStatus,
-      name: data.role === "ADMIN" ? data.name.trim() : data.dealerName.trim(),
-      mustChangePassword: true,
-      createdByUserId,
-      dealerProfile:
-        data.role === "DEALER"
-          ? {
-              create: {
-                accountNo: data.accountNo.trim(),
-                dealerName: data.dealerName.trim(),
-                genuineTier: data.genuineTier,
-                aftermarketTier: data.aftermarketTier,
-                brandedTier: data.brandedTier,
-                status: data.status,
-                dispatchMethodDefault: data.dispatchMethodDefault?.trim() || null
-              }
+  await createUserWithProfile({
+    email: normalizedEmail,
+    passwordHash,
+    role: data.role,
+    status: userStatus,
+    name: data.role === "ADMIN" ? data.name.trim() : data.dealerName.trim(),
+    mustChangePassword: true,
+    createdByUserId,
+    dealerProfile:
+      data.role === "DEALER"
+        ? {
+            create: {
+              accountNo: data.accountNo.trim(),
+              dealerName: data.dealerName.trim(),
+              genuineTier: data.genuineTier,
+              aftermarketTier: data.aftermarketTier,
+              brandedTier: data.brandedTier,
+              status: data.status,
+              dispatchMethodDefault: data.dispatchMethodDefault?.trim() || null
             }
-          : undefined
-    }
+          }
+        : undefined
   });
 
   return NextResponse.json({ ok: true }, { status: 201 });

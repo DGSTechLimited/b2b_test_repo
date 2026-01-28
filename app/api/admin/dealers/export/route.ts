@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { stringify } from "csv-stringify/sync";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
+import { getAllDealers } from "@/lib/db/admin-dealers";
 
 export async function GET() {
   try {
@@ -10,11 +10,7 @@ export async function GET() {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const dealers = await prisma.user.findMany({
-    where: { role: "DEALER" },
-    include: { dealerProfile: true },
-    orderBy: { createdAt: "desc" }
-  });
+  const dealers = await getAllDealers();
 
   const rows = dealers.map((dealer) => ({
     "Dealer ID": dealer.id,

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/require-auth";
+import { getUserProfileById, updateUserPassword } from "@/lib/db/me";
 
 const schema = z.object({
   currentPassword: z.string().optional(),
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
   const { currentPassword, newPassword } = parsed.data;
   const userId = (session.user as any).id as string;
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await getUserProfileById(userId);
   if (!user) {
     return NextResponse.json({ message: "User not found" }, { status: 404 });
   }
@@ -41,15 +41,7 @@ export async function POST(request: Request) {
   }
 
   const passwordHash = await bcrypt.hash(newPassword, 12);
-  // LLID: L-API-ME-001-change-password
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      passwordHash,
-      mustChangePassword: false,
-      passwordUpdatedAt: new Date()
-    }
-  });
+  await updateUserPassword(userId, passwordHash, false, new Date());
 
   return NextResponse.json({ ok: true });
 }

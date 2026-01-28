@@ -1,6 +1,6 @@
 "use server";
 
-import { UploadType } from "@prisma/client";
+import type { UploadType } from "@/lib/db/types";
 import {
   createDealerDb,
   uploadOrderStatusDb,
