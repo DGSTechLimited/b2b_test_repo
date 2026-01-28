@@ -17,6 +17,7 @@ async function main() {
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
+  // LLID: L-SEED-001-create-superadmin
   await prisma.user.create({
     data: {
       email,

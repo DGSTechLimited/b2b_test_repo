@@ -13,7 +13,9 @@ export async function clearCartIfExpired(cart: { id: string; updatedAt: Date } |
   if (!isCartExpired(cart.updatedAt)) {
     return false;
   }
+  // LLID: L-LIB-002-clear-expired-cart-items
   await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
+  // LLID: L-LIB-003-touch-expired-cart
   await prisma.cart.update({
     where: { id: cart.id },
     data: { updatedAt: new Date() }

@@ -39,10 +39,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (user.role === "DEALER" && user.dealerProfile) {
     const userStatus = status === "INACTIVE" ? "INACTIVE" : "ACTIVE";
     await prisma.$transaction([
+      // LLID: L-API-ADMIN-004-update-dealer-user
       prisma.user.update({
         where: { id: user.id },
         data: { name: cleanedName, status: userStatus }
       }),
+      // LLID: L-API-ADMIN-005-update-dealer-profile
       prisma.dealerProfile.update({
         where: { id: user.dealerProfile.id },
         data: {
@@ -58,6 +60,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (status === "SUSPENDED") {
       return NextResponse.json({ message: "Invalid status for admin user." }, { status: 400 });
     }
+    // LLID: L-API-ADMIN-006-update-admin-user
     await prisma.user.update({
       where: { id: user.id },
       data: { name: cleanedName, status }

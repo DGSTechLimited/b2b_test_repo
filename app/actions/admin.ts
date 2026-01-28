@@ -112,6 +112,7 @@ const discountCodeToCategory = (value: string) => {
 const isXlsxFile = (name: string) => name.toLowerCase().endsWith(".xlsx");
 
 async function createBatch(type: UploadType, filename: string, userId: string) {
+  // LLID: L-ADMIN-001-create-upload-batch
   return prisma.uploadBatch.create({
     data: {
       type,
@@ -170,6 +171,7 @@ export async function createDealer(
 
   const passwordHash = await bcrypt.hash(data.password, 12);
 
+  // LLID: L-ADMIN-002-create-dealer-user
   await prisma.user.create({
     data: {
       email: data.email,
@@ -193,6 +195,7 @@ export async function createDealer(
     }
   });
 
+  // LLID: L-ADMIN-003-audit-dealer-create
   await prisma.auditLog.create({
     data: {
       userId: (session.user as any).id,
@@ -308,6 +311,7 @@ export async function uploadParts(
     };
   });
 
+  // LLID: L-ADMIN-004-stage-parts-rows
   await prisma.stagingPart.createMany({ data: stagingRows });
 
   const errors: Record<string, string>[] = [];
@@ -407,6 +411,7 @@ export async function uploadParts(
     const errorHeaders = isXlsx ? partsWorkbookHeaders : headers;
     const errorCsv = buildErrorCsv(errorHeaders, errors, "error_reason");
     const errorPath = await writeErrorCsv(batch.id, errorCsv);
+    // LLID: L-ADMIN-005-reject-parts-batch
     await prisma.uploadBatch.update({
       where: { id: batch.id },
       data: { status: "REJECTED", errorCsvPath: errorPath }
@@ -415,6 +420,7 @@ export async function uploadParts(
   }
 
   if (validRows.length === 0) {
+    // LLID: L-ADMIN-006-reject-parts-batch-empty
     await prisma.uploadBatch.update({
       where: { id: batch.id },
       data: { status: "REJECTED" }
@@ -434,14 +440,16 @@ export async function uploadParts(
   }
 
   for (const chunk of chunks) {
+    // LLID: L-ADMIN-007-upsert-catalog-parts
     await prisma.$transaction(
-      chunk.map((row) =>
-        prisma.catalogPart.upsert({
+      chunk.map((row) => {
+        // LLID: L-ADMIN-007-upsert-catalog-part
+        return prisma.catalogPart.upsert({
           where: { stkNo: row.stkNo },
           update: row.updateData,
           create: row.createData
-        })
-      )
+        });
+      })
     );
   }
 
@@ -456,17 +464,20 @@ export async function uploadParts(
   });
 
   if (deactivateCandidates.length > 0) {
+    // LLID: L-ADMIN-008-deactivate-missing-parts
     await prisma.catalogPart.updateMany({
       where: { id: { in: deactivateCandidates.map((part) => part.id) } },
       data: { isActive: false }
     });
   }
 
+  // LLID: L-ADMIN-009-apply-parts-batch
   await prisma.uploadBatch.update({
     where: { id: batch.id },
     data: { status: "APPLIED" }
   });
 
+  // LLID: L-ADMIN-010-audit-parts-upload
   await prisma.auditLog.create({
     data: {
       userId: (session.user as any).id,
@@ -520,6 +531,7 @@ export async function uploadOrderStatus(formData: FormData) {
     raw: row
   }));
 
+  // LLID: L-ADMIN-011-stage-order-status
   await prisma.stagingOrderStatus.createMany({ data: stagingRows });
 
   const errors: Record<string, string>[] = [];
@@ -643,6 +655,7 @@ export async function uploadOrderStatus(formData: FormData) {
   if (errors.length > 0) {
     const errorCsv = buildErrorCsv(headers, errors, "error_reason");
     const errorPath = await writeErrorCsv(batch.id, errorCsv);
+    // LLID: L-ADMIN-012-reject-order-status-batch
     await prisma.uploadBatch.update({
       where: { id: batch.id },
       data: { status: "REJECTED", errorCsvPath: errorPath }
@@ -673,9 +686,11 @@ export async function uploadOrderStatus(formData: FormData) {
     return row.statusDate > current.statusDate;
   });
 
+  // LLID: L-ADMIN-013-upsert-order-line-status
   await prisma.$transaction(
-    updates.map((row) =>
-      prisma.orderLineStatus.upsert({
+    updates.map((row) => {
+      // LLID: L-ADMIN-013-upsert-order-line-status
+      return prisma.orderLineStatus.upsert({
         where: { orderId_partNumber: { orderId: row.orderId, partNumber: row.partNumber } },
         update: {
           accountNo: row.accountNo,
@@ -699,15 +714,17 @@ export async function uploadOrderStatus(formData: FormData) {
           notes: row.notes,
           sourceBatchId: batch.id
         }
-      })
-    )
+      });
+    })
   );
 
+  // LLID: L-ADMIN-014-apply-order-status-batch
   await prisma.uploadBatch.update({
     where: { id: batch.id },
     data: { status: "APPLIED" }
   });
 
+  // LLID: L-ADMIN-015-audit-order-status-upload
   await prisma.auditLog.create({
     data: {
       userId: (session.user as any).id,
@@ -748,6 +765,7 @@ export async function uploadSupersession(formData: FormData) {
     raw: row
   }));
 
+  // LLID: L-ADMIN-016-stage-supersession
   await prisma.stagingSupersession.createMany({ data: stagingRows });
 
   const errors: Record<string, string>[] = [];
@@ -776,6 +794,7 @@ export async function uploadSupersession(formData: FormData) {
   if (errors.length > 0) {
     const errorCsv = buildErrorCsv(headers, errors, "error_reason");
     const errorPath = await writeErrorCsv(batch.id, errorCsv);
+    // LLID: L-ADMIN-017-reject-supersession-batch
     await prisma.uploadBatch.update({
       where: { id: batch.id },
       data: { status: "REJECTED", errorCsvPath: errorPath }
@@ -805,6 +824,7 @@ export async function uploadSupersession(formData: FormData) {
 
     const errorCsv = buildErrorCsv(headers, errorRows, "error_reason");
     const errorPath = await writeErrorCsv(batch.id, errorCsv);
+    // LLID: L-ADMIN-018-reject-supersession-cycles
     await prisma.uploadBatch.update({
       where: { id: batch.id },
       data: { status: "REJECTED", errorCsvPath: errorPath }
@@ -815,6 +835,7 @@ export async function uploadSupersession(formData: FormData) {
   const updates = stagingRows.map((row) => {
     const effectiveDate = row.effectiveDate ? new Date(row.effectiveDate) : null;
     const safeDate = effectiveDate && !Number.isNaN(effectiveDate.getTime()) ? effectiveDate : null;
+    // LLID: L-ADMIN-019-upsert-supersession
     return prisma.supersession.upsert({
       where: { oldPartNo: row.oldPartNo!.trim() },
       update: {
@@ -833,11 +854,13 @@ export async function uploadSupersession(formData: FormData) {
 
   await prisma.$transaction(updates);
 
+  // LLID: L-ADMIN-020-apply-supersession-batch
   await prisma.uploadBatch.update({
     where: { id: batch.id },
     data: { status: "APPLIED" }
   });
 
+  // LLID: L-ADMIN-021-audit-supersession-upload
   await prisma.auditLog.create({
     data: {
       userId: (session.user as any).id,

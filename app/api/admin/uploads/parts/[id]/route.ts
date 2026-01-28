@@ -34,6 +34,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ message: "Part not found" }, { status: 404 });
   }
 
+  // LLID: L-API-ADMIN-001-update-catalog-part
   await prisma.catalogPart.update({
     where: { id: part.id },
     data: {

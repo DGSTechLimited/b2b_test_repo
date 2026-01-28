@@ -41,6 +41,7 @@ export async function POST(request: Request) {
   }
 
   const passwordHash = await bcrypt.hash(newPassword, 12);
+  // LLID: L-API-ME-001-change-password
   await prisma.user.update({
     where: { id: userId },
     data: {

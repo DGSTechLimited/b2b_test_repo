@@ -98,6 +98,7 @@ async function main() {
 
     let userId: string;
     if (existingUser) {
+      // LLID: L-SCRIPT-001-update-dealer-user
       await prisma.user.update({
         where: { id: existingUser.id },
         data: {
@@ -110,6 +111,7 @@ async function main() {
       userId = existingUser.id;
     } else {
       const passwordHash = await bcrypt.hash(tempPassword || DEFAULT_PASSWORD, 12);
+      // LLID: L-SCRIPT-002-create-dealer-user
       const created = await prisma.user.create({
         data: {
           email,
@@ -127,6 +129,7 @@ async function main() {
     }
 
     const profileExists = Boolean(existingProfile);
+    // LLID: L-SCRIPT-003-upsert-dealer-profile
     await prisma.dealerProfile.upsert({
       where: { accountNo },
       update: {

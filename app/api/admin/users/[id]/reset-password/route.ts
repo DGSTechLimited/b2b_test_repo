@@ -32,6 +32,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const tempPassword = requestedPassword || generateTempPassword();
   const passwordHash = await bcrypt.hash(tempPassword, 12);
 
+  // LLID: L-API-ADMIN-003-reset-user-password
   await prisma.user.update({
     where: { id: params.id },
     data: {

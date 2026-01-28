@@ -64,9 +64,11 @@ export async function addToCart(formData: FormData): Promise<CartSummary> {
   });
   const lineTotal = unitPrice.mul(qty);
 
-  const cart =
-    (await prisma.cart.findUnique({ where: { userId } })) ??
-    (await prisma.cart.create({ data: { userId } }));
+  let cart = await prisma.cart.findUnique({ where: { userId } });
+  if (!cart) {
+    // LLID: L-PORTAL-001-create-cart
+    cart = await prisma.cart.create({ data: { userId } });
+  }
 
   await clearCartIfExpired(cart);
 
@@ -76,6 +78,7 @@ export async function addToCart(formData: FormData): Promise<CartSummary> {
 
   if (existing) {
     const newQty = existing.qty + qty;
+    // LLID: L-PORTAL-002-update-cart-item
     await prisma.cartItem.update({
       where: { id: existing.id },
       data: {
@@ -84,6 +87,7 @@ export async function addToCart(formData: FormData): Promise<CartSummary> {
       }
     });
   } else {
+    // LLID: L-PORTAL-003-create-cart-item
     await prisma.cartItem.create({
       data: {
         cartId: cart.id,
@@ -97,6 +101,7 @@ export async function addToCart(formData: FormData): Promise<CartSummary> {
     });
   }
 
+  // LLID: L-PORTAL-004-touch-cart
   await prisma.cart.update({
     where: { id: cart.id },
     data: { updatedAt: new Date() }
@@ -134,7 +139,9 @@ export async function updateCartItem(formData: FormData): Promise<CartSummary> {
   }
 
   if (qty <= 0) {
+    // LLID: L-PORTAL-005-delete-cart-item
     await prisma.cartItem.delete({ where: { id: itemId } });
+    // LLID: L-PORTAL-006-touch-cart
     await prisma.cart.update({
       where: { id: cart.id },
       data: { updatedAt: new Date() }
@@ -144,15 +151,18 @@ export async function updateCartItem(formData: FormData): Promise<CartSummary> {
   }
 
   const lineTotal = item.unitPrice.mul(qty);
+  // LLID: L-PORTAL-007-update-cart-item
   await prisma.cartItem.update({
     where: { id: itemId },
     data: { qty, lineTotal }
   });
+  // LLID: L-PORTAL-008-touch-cart
   await prisma.cart.update({
     where: { id: cart.id },
     data: { updatedAt: new Date() }
   });
 
+  // LLID: L-PORTAL-009-audit-cart-update
   await prisma.auditLog.create({
     data: {
       userId: (session.user as any).id,
@@ -213,6 +223,7 @@ export async function placeOrder(input: PlaceOrderInput) {
   });
   const partMap = new Map(parts.map((part) => [part.id, part]));
 
+  // LLID: L-PORTAL-010-create-order
   const order = await prisma.order.create({
     data: {
       orderNumber,
@@ -250,19 +261,23 @@ export async function placeOrder(input: PlaceOrderInput) {
     }
   });
 
+  // LLID: L-PORTAL-011-clear-cart-items
   await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
+  // LLID: L-PORTAL-012-touch-cart
   await prisma.cart.update({
     where: { id: cart.id },
     data: { updatedAt: new Date() }
   });
 
   if (input.saveDefaultShipping) {
+    // LLID: L-PORTAL-013-update-shipping-default
     await prisma.dealerProfile.update({
       where: { id: dealerProfile.id },
       data: { dispatchMethodDefault: input.shippingMethod.trim() }
     });
   }
 
+  // LLID: L-PORTAL-014-audit-order-create
   await prisma.auditLog.create({
     data: {
       userId,

@@ -149,6 +149,7 @@ export async function POST(request: Request) {
         : "ACTIVE"
       : data.status;
 
+  // LLID: L-API-ADMIN-007-create-user
   await prisma.user.create({
     data: {
       email: normalizedEmail,

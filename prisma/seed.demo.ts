@@ -85,12 +85,15 @@ const randomDateWithinDays = (days: number) => {
 
 async function cleanupDemoData() {
   const superAdminEmail = process.env.SUPERADMIN_EMAIL ?? "";
+  // LLID: L-SEED-DEMO-001-clear-order-items
   await prisma.orderItem.deleteMany({
     where: { order: { orderNumber: { startsWith: DEMO_PREFIX } } }
   });
+  // LLID: L-SEED-DEMO-002-clear-orders
   await prisma.order.deleteMany({
     where: { orderNumber: { startsWith: DEMO_PREFIX } }
   });
+  // LLID: L-SEED-DEMO-003-clear-supersessions
   await prisma.supersession.deleteMany({
     where: {
       OR: [
@@ -99,15 +102,19 @@ async function cleanupDemoData() {
       ]
     }
   });
+  // LLID: L-SEED-DEMO-004-clear-order-line-status
   await prisma.orderLineStatus.deleteMany({
     where: { accountNo: { startsWith: DEMO_PREFIX } }
   });
+  // LLID: L-SEED-DEMO-005-clear-upload-batches
   await prisma.uploadBatch.deleteMany({
     where: { filename: { startsWith: "demo-" } }
   });
+  // LLID: L-SEED-DEMO-006-clear-catalog-parts
   await prisma.catalogPart.deleteMany({
     where: { stkNo: { startsWith: DEMO_PREFIX } }
   });
+  // LLID: L-SEED-DEMO-007-clear-dealer-profiles
   await prisma.dealerProfile.deleteMany({
     where: { accountNo: { startsWith: DEMO_PREFIX } }
   });
@@ -115,6 +122,7 @@ async function cleanupDemoData() {
   if (superAdminEmail) {
     userWhere.NOT = { email: superAdminEmail };
   }
+  // LLID: L-SEED-DEMO-008-clear-demo-users
   await prisma.user.deleteMany({ where: userWhere });
 }
 
@@ -129,6 +137,7 @@ async function seedUsers() {
   for (let idx = 0; idx < adminSeeds.length; idx += 1) {
     const name = adminSeeds[idx];
     const email = `admin${idx + 1}@${DEMO_DOMAIN}`;
+    // LLID: L-SEED-DEMO-009-upsert-admin-user
     await prisma.user.upsert({
       where: { email },
       update: {
@@ -164,6 +173,7 @@ async function seedUsers() {
     const dealerName = dealerSeeds[idx];
     const accountNo = `${DEMO_PREFIX}ACCT-${String(idx + 1).padStart(3, "0")}`;
     const email = `dealer${idx + 1}@${DEMO_DOMAIN}`;
+    // LLID: L-SEED-DEMO-010-upsert-dealer-user
     const user = await prisma.user.upsert({
       where: { email },
       update: {
@@ -192,6 +202,7 @@ async function seedUsers() {
       brandedTier: randomChoice(tiers)
     };
 
+    // LLID: L-SEED-DEMO-011-upsert-dealer-profile
     const profile = await prisma.dealerProfile.upsert({
       where: { accountNo },
       update: {
@@ -279,6 +290,7 @@ async function seedCatalog() {
     }
   });
 
+  // LLID: L-SEED-DEMO-012-create-demo-catalog-parts
   await prisma.catalogPart.createMany({ data: parts });
 }
 
@@ -315,6 +327,7 @@ async function seedSupersessions() {
   }
 
   if (supersessions.length > 0) {
+    // LLID: L-SEED-DEMO-013-create-demo-supersessions
     await prisma.supersession.createMany({ data: supersessions });
   }
 }
@@ -408,6 +421,7 @@ async function seedOrders(
       status = rng() < 0.5 ? "COMPLETED" : "SHIPPED";
     }
 
+    // LLID: L-SEED-DEMO-014-create-demo-order
     const createdOrder = await prisma.order.create({
       data: {
         orderNumber,
@@ -427,6 +441,7 @@ async function seedOrders(
       lineStatuses.forEach((row) => {
         uniqueStatuses.set(row.partNumber, row);
       });
+      // LLID: L-SEED-DEMO-015-create-demo-line-status
       await prisma.orderLineStatus.createMany({
         data: Array.from(uniqueStatuses.values()).map((row) => ({ ...row, orderId: createdOrder.id })),
         skipDuplicates: true
@@ -460,6 +475,7 @@ async function seedUploadBatches() {
     });
   }
 
+  // LLID: L-SEED-DEMO-016-create-demo-upload-batches
   await prisma.uploadBatch.createMany({ data: uploads });
 }
 

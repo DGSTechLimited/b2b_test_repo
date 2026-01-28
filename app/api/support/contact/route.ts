@@ -128,6 +128,7 @@ export async function POST(request: Request) {
     };
   }
 
+  // LLID: L-API-SUPPORT-001-audit-support-contact
   await prisma.auditLog.create({
     data: {
       userId: (session.user as any).id as string,

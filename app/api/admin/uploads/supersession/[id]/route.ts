@@ -34,6 +34,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ message: "Invalid effective date" }, { status: 400 });
   }
 
+  // LLID: L-API-ADMIN-002-update-supersession
   await prisma.supersession.update({
     where: { id: supersession.id },
     data: {

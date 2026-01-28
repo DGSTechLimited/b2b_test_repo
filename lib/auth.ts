@@ -36,6 +36,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        // LLID: L-LIB-001-update-last-login
         await prisma.user.update({
           where: { id: user.id },
           data: { lastLoginAt: new Date() }
