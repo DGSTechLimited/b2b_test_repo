@@ -22,7 +22,14 @@ jobs:
           ZIP="gres-digital-b2b-${VERSION}.zip"
           URL="https://github.com/ajranjith/B2B-Updated/releases/download/${VERSION}/${ZIP}"
           curl -fsSL "$URL" -o "$ZIP"
-          unzip -q "$ZIP"
+          python - <<'PY'
+          import zipfile
+          from pathlib import Path
+
+          zip_path = Path("gres-digital-b2b-v4.0.0-beta.1.zip")
+          with zipfile.ZipFile(zip_path) as zf:
+            zf.extractall()
+          PY
 
       - name: Run GRES B2B Governance (Shadow)
         run: |
