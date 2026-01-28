@@ -5,17 +5,14 @@ import { PortalNav } from "@/components/layout/PortalNav";
 import { TopInfoBar } from "@/components/layout/TopInfoBar";
 import { UserMenu } from "@/components/user-menu";
 import { Button } from "@/components/ui/button";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/require-auth";
 import { clearCartIfExpired } from "@/lib/cart-expiry";
+import { getCartWithItemsByUserId } from "@/lib/db/portal-shell";
 
 export async function PortalShell({ children }: { children: React.ReactNode }) {
   const session = await requireRole("DEALER");
   const userId = (session.user as any).id as string;
-  const cart = await prisma.cart.findUnique({
-    where: { userId },
-    include: { items: true }
-  });
+  const cart = await getCartWithItemsByUserId(userId);
   const expired = await clearCartIfExpired(cart);
   const cartCount = expired ? 0 : cart?.items.reduce((sum, item) => sum + item.qty, 0) ?? 0;
   const cartLabel = cartCount > 99 ? "99+" : String(cartCount);
