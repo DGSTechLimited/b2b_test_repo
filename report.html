@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRES Digital - Live Governance HUD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .code-block {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .watermark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            opacity: 0.3;
+            font-size: 48px;
+            font-weight: bold;
+            color: #374151;
+            pointer-events: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="watermark">GRES Digital</div>
+
+    
+    <header class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-2xl font-bold text-white">GRES Digital</h1>
+                <span class="text-gray-400">v4.0.0</span>
+                <span class="px-3 py-1 bg-red-500 text-white text-sm rounded-full font-medium">
+                    CRITICAL - LIVE MONITORING ACTIVE
+                </span>
+            </div>
+            <div class="flex items-center space-x-4 text-sm text-gray-400">
+                <span>Mode: <span class="text-white font-medium">brownfield</span></span>
+                <span>Last Update: <span class="text-white">2026-01-28T12:22:59Z</span></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-6">
+        
+        <div class="mb-6 p-4 rounded-lg bg-red-900/50 border border-red-500">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-4 h-4 rounded-full bg-red-500 animate-pulse"></div>
+                    <span class="text-lg font-semibold">Global Status: RED</span>
+                </div>
+                <span class="text-sm text-gray-400">Critical violations detected - deployment blocked</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <div class="bg-gray-800 rounded-lg border border-gray-700">
+                <div class="px-4 py-3 border-b border-gray-700">
+                    <h2 class="text-lg font-semibold text-green-400">Greenfield (Builder Mode)</h2>
+                </div>
+                <div class="p-4 space-y-4">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-700/50 rounded-lg p-3">
+                            <div class="text-sm text-gray-400">Build Progress</div>
+                            <div class="text-2xl font-bold text-green-400">0%</div>
+                            <div class="mt-2 h-2 bg-gray-600 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-500 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-700/50 rounded-lg p-3">
+                            <div class="text-sm text-gray-400">Open Deviations</div>
+                            <div class="text-2xl font-bold text-green-400">0</div>
+                        </div>
+                        <div class="bg-gray-700/50 rounded-lg p-3">
+                            <div class="text-sm text-gray-400">Registry Sync</div>
+                            <div class="text-lg font-medium text-white">L-001 - L-000</div>
+                        </div>
+                        <div class="bg-gray-700/50 rounded-lg p-3">
+                            <div class="text-sm text-gray-400">Active Agent</div>
+                            <div class="text-lg font-medium text-blue-400">UNKNOWN</div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="bg-gray-700/50 rounded-lg p-3">
+                        <div class="text-sm text-gray-400 mb-2">Pipeline Log</div>
+                        <div class="space-y-2 max-h-48 overflow-y-auto">
+                            
+                            <div class="text-gray-500 text-sm">No pipeline activity yet</div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="bg-gray-800 rounded-lg border border-gray-700">
+                <div class="px-4 py-3 border-b border-gray-700">
+                    <h2 class="text-lg font-semibold text-amber-400">Brownfield (Transformer Mode)</h2>
+                    <span class="text-sm text-gray-400">mode: flash-migrate</span>
+                </div>
+                <div class="p-4 space-y-4">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <div class="text-sm text-gray-400 mb-2">LEGACY SOURCE</div>
+                            <div class="bg-gray-900 rounded-lg p-3 code-block text-red-300 h-32 overflow-auto">
+                                // BOUNDARY_VIOLATION<br>// File: app/actions/admin.ts:3<br>// Prisma client usage detected outside repository/db boundary.
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-400 mb-2">REBUILT (v4.0 Slice)</div>
+                            <div class="bg-gray-900 rounded-lg p-3 code-block text-green-300 h-32 overflow-auto">
+                                // v4.0 Vertical Slice Pattern<br>// API-ID: API-001<br>import { svc } from './svc';<br><br>// LLID: L-001-create<br>await repo.create(data);
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-700/50 rounded-lg p-3">
+                            <div class="text-sm text-gray-400">Read Parity</div>
+                            <div class="text-2xl font-bold text-gray-400">0%</div>
+                        </div>
+                        <div class="bg-gray-700/50 rounded-lg p-3">
+                            <div class="text-sm text-gray-400">Trace-Safe</div>
+                            <div class="text-2xl font-bold text-red-400">NO</div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="bg-gray-700/50 rounded-lg p-3">
+                        <div class="grid grid-cols-3 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-400">Ghost ID:</span>
+                                <span class="ml-2 text-amber-400 font-mono">N/A</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400">Verified ID:</span>
+                                <span class="ml-2 text-green-400 font-mono">N/A</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400">LLID:</span>
+                                <span class="ml-2 text-blue-400 font-mono">N/A</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="flex items-center justify-between bg-gray-700/50 rounded-lg p-3">
+                        <span class="text-sm text-gray-400">Cutover Approved</span>
+                        <span class="px-3 py-1 rounded-full text-sm font-medium bg-gray-600 text-gray-300">
+                            PENDING
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        
+        <div class="mt-6 bg-gray-800 rounded-lg border border-gray-700">
+            <div class="px-4 py-3 border-b border-gray-700">
+                <h2 class="text-lg font-semibold text-white">Scan Findings</h2>
+            </div>
+            <div class="p-4">
+                <div class="space-y-2 max-h-64 overflow-y-auto">
+                    
+                    <div class="flex items-start space-x-3 p-3 rounded-lg bg-red-900/30 border border-red-800">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-red-500"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-red-400">BOUNDARY_VIOLATION</span>
+                                <span class="text-gray-500 text-sm">app/actions/admin.ts:3</span>
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Prisma client usage detected outside repository/db boundary.</div>
+                            <div class="text-sm text-gray-500 mt-1">Fix: Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-3 p-3 rounded-lg bg-red-900/30 border border-red-800">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-red-500"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-red-400">BOUNDARY_VIOLATION</span>
+                                <span class="text-gray-500 text-sm">app/actions/portal.ts:3</span>
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Prisma client usage detected outside repository/db boundary.</div>
+                            <div class="text-sm text-gray-500 mt-1">Fix: Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-3 p-3 rounded-lg bg-red-900/30 border border-red-800">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-red-500"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-red-400">BOUNDARY_VIOLATION</span>
+                                <span class="text-gray-500 text-sm">app/api/admin/orders/route.ts:2</span>
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Prisma client usage detected outside repository/db boundary.</div>
+                            <div class="text-sm text-gray-500 mt-1">Fix: Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-3 p-3 rounded-lg bg-red-900/30 border border-red-800">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-red-500"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-red-400">BOUNDARY_VIOLATION</span>
+                                <span class="text-gray-500 text-sm">app/api/cart/summary/route.ts:2</span>
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Prisma client usage detected outside repository/db boundary.</div>
+                            <div class="text-sm text-gray-500 mt-1">Fix: Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-3 p-3 rounded-lg bg-red-900/30 border border-red-800">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-red-500"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-red-400">BOUNDARY_VIOLATION</span>
+                                <span class="text-gray-500 text-sm">app/portal/cart/page.tsx:2</span>
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Prisma client usage detected outside repository/db boundary.</div>
+                            <div class="text-sm text-gray-500 mt-1">Fix: Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-3 p-3 rounded-lg bg-red-900/30 border border-red-800">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-red-500"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-red-400">BOUNDARY_VIOLATION</span>
+                                <span class="text-gray-500 text-sm">app/portal/checkout/page.tsx:2</span>
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Prisma client usage detected outside repository/db boundary.</div>
+                            <div class="text-sm text-gray-500 mt-1">Fix: Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-3 p-3 rounded-lg bg-red-900/30 border border-red-800">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-red-500"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-red-400">BOUNDARY_VIOLATION</span>
+                                <span class="text-gray-500 text-sm">app/portal/parts/page.tsx:1</span>
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Prisma client usage detected outside repository/db boundary.</div>
+                            <div class="text-sm text-gray-500 mt-1">Fix: Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-3 p-3 rounded-lg bg-red-900/30 border border-red-800">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-red-500"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-red-400">BOUNDARY_VIOLATION</span>
+                                <span class="text-gray-500 text-sm">lib/pricing.ts:1</span>
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Prisma client usage detected outside repository/db boundary.</div>
+                            <div class="text-sm text-gray-500 mt-1">Fix: Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-3 p-3 rounded-lg bg-red-900/30 border border-red-800">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-red-500"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-red-400">BOUNDARY_VIOLATION</span>
+                                <span class="text-gray-500 text-sm">lib/prisma.ts:1</span>
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Prisma client usage detected outside repository/db boundary.</div>
+                            <div class="text-sm text-gray-500 mt-1">Fix: Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-3 p-3 rounded-lg bg-red-900/30 border border-red-800">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-red-500"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-red-400">BOUNDARY_VIOLATION</span>
+                                <span class="text-gray-500 text-sm">lib/prisma.ts:7</span>
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Prisma client usage detected outside repository/db boundary.</div>
+                            <div class="text-sm text-gray-500 mt-1">Fix: Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-3 p-3 rounded-lg bg-red-900/30 border border-red-800">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-red-500"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-red-400">BOUNDARY_VIOLATION</span>
+                                <span class="text-gray-500 text-sm">prisma/seed.demo.ts:12</span>
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Prisma client usage detected outside repository/db boundary.</div>
+                            <div class="text-sm text-gray-500 mt-1">Fix: Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-3 p-3 rounded-lg bg-red-900/30 border border-red-800">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-red-500"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-red-400">BOUNDARY_VIOLATION</span>
+                                <span class="text-gray-500 text-sm">scripts/import-dealers.ts:3</span>
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Prisma client usage detected outside repository/db boundary.</div>
+                            <div class="text-sm text-gray-500 mt-1">Fix: Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract.</div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+    </main>
+
+    
+    <footer class="bg-gray-800 border-t border-gray-700 px-6 py-3 mt-6">
+        <div class="flex items-center justify-between text-sm text-gray-400">
+            <span>GRES Digital B2B Governance Engine v4.0.0</span>
+            <span>Generated by gres-b2b MCP Server</span>
+        </div>
+    </footer>
+</body>
+</html>

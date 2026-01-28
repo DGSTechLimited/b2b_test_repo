@@ -1,0 +1,124 @@
+{
+  "version": "4.0.0",
+  "lastUpdateUtc": "2026-01-28T12:22:59Z",
+  "globalStatus": "RED",
+  "mode": "brownfield",
+  "greenfield": {
+    "buildProgressPct": 0,
+    "openDeviations": 0,
+    "registrySync": "L-001 - L-000",
+    "activeAgent": "UNKNOWN",
+    "pipelineLog": []
+  },
+  "brownfield": {
+    "modeTag": "flash-migrate",
+    "legacyTitle": "LEGACY SOURCE",
+    "rebuiltTitle": "REBUILT (v4.0 Slice)",
+    "legacySnippet": "// BOUNDARY_VIOLATION\u003cbr\u003e// File: app/actions/admin.ts:3\u003cbr\u003e// Prisma client usage detected outside repository/db boundary.",
+    "rebuiltSnippet": "// v4.0 Vertical Slice Pattern\u003cbr\u003e// API-ID: API-001\u003cbr\u003eimport { svc } from './svc';\u003cbr\u003e\u003cbr\u003e// LLID: L-001-create\u003cbr\u003eawait repo.create(data);",
+    "readParityPct": 0,
+    "traceSafe": false,
+    "ghostId": "N/A",
+    "verifiedId": "N/A",
+    "llid": "N/A",
+    "cutoverApproved": false,
+    "findings": [
+      {
+        "severity": "RED",
+        "rule": "BOUNDARY_VIOLATION",
+        "file": "app/actions/admin.ts",
+        "line": 3,
+        "message": "Prisma client usage detected outside repository/db boundary.",
+        "fix": "Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract."
+      },
+      {
+        "severity": "RED",
+        "rule": "BOUNDARY_VIOLATION",
+        "file": "app/actions/portal.ts",
+        "line": 3,
+        "message": "Prisma client usage detected outside repository/db boundary.",
+        "fix": "Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract."
+      },
+      {
+        "severity": "RED",
+        "rule": "BOUNDARY_VIOLATION",
+        "file": "app/api/admin/orders/route.ts",
+        "line": 2,
+        "message": "Prisma client usage detected outside repository/db boundary.",
+        "fix": "Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract."
+      },
+      {
+        "severity": "RED",
+        "rule": "BOUNDARY_VIOLATION",
+        "file": "app/api/cart/summary/route.ts",
+        "line": 2,
+        "message": "Prisma client usage detected outside repository/db boundary.",
+        "fix": "Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract."
+      },
+      {
+        "severity": "RED",
+        "rule": "BOUNDARY_VIOLATION",
+        "file": "app/portal/cart/page.tsx",
+        "line": 2,
+        "message": "Prisma client usage detected outside repository/db boundary.",
+        "fix": "Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract."
+      },
+      {
+        "severity": "RED",
+        "rule": "BOUNDARY_VIOLATION",
+        "file": "app/portal/checkout/page.tsx",
+        "line": 2,
+        "message": "Prisma client usage detected outside repository/db boundary.",
+        "fix": "Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract."
+      },
+      {
+        "severity": "RED",
+        "rule": "BOUNDARY_VIOLATION",
+        "file": "app/portal/parts/page.tsx",
+        "line": 1,
+        "message": "Prisma client usage detected outside repository/db boundary.",
+        "fix": "Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract."
+      },
+      {
+        "severity": "RED",
+        "rule": "BOUNDARY_VIOLATION",
+        "file": "lib/pricing.ts",
+        "line": 1,
+        "message": "Prisma client usage detected outside repository/db boundary.",
+        "fix": "Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract."
+      },
+      {
+        "severity": "RED",
+        "rule": "BOUNDARY_VIOLATION",
+        "file": "lib/prisma.ts",
+        "line": 1,
+        "message": "Prisma client usage detected outside repository/db boundary.",
+        "fix": "Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract."
+      },
+      {
+        "severity": "RED",
+        "rule": "BOUNDARY_VIOLATION",
+        "file": "lib/prisma.ts",
+        "line": 7,
+        "message": "Prisma client usage detected outside repository/db boundary.",
+        "fix": "Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract."
+      },
+      {
+        "severity": "RED",
+        "rule": "BOUNDARY_VIOLATION",
+        "file": "prisma/seed.demo.ts",
+        "line": 12,
+        "message": "Prisma client usage detected outside repository/db boundary.",
+        "fix": "Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract."
+      },
+      {
+        "severity": "RED",
+        "rule": "BOUNDARY_VIOLATION",
+        "file": "scripts/import-dealers.ts",
+        "line": 3,
+        "message": "Prisma client usage detected outside repository/db boundary.",
+        "fix": "Move Prisma usage into a repository layer (/repositories/ or /db/) and expose via DB-ID wired contract."
+      }
+    ]
+  }
+}

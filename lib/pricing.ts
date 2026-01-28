@@ -1,4 +1,4 @@
-import type { CatalogPart, PartType, PricingTier } from "@prisma/client";
+import type { CatalogPart, PartType, PricingTier } from "@/lib/db/types";
 
 type DealerTierSet = {
   genuineTier: PricingTier;
